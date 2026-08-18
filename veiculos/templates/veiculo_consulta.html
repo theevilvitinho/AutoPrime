@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Consultar Meu Veículo{% endblock %}
+
+{% block content %}
+<h2>Consultar meu veículo</h2>
+<p class="text-muted">Informe o modelo e a placa do seu carro para ver o histórico de manutenções.</p>
+
+<form method="post" class="mb-4">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label class="form-label">Modelo</label>
+        <input type="text" name="modelo" class="form-control" placeholder="Ex: Civic" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Placa</label>
+        <input type="text" name="placa" class="form-control" placeholder="Ex: JKL4444" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Consultar</button>
+</form>
+
+{% if erro %}
+    <div class="alert alert-danger">{{ erro }}</div>
+{% endif %}
+
+{% if veiculo %}
+<div class="card">
+    <div class="card-body">
+        <h4 class="card-title">{{ veiculo.marca }} {{ veiculo.modelo }} ({{ veiculo.ano }})</h4>
+        <p class="card-text">
+            Placa: <strong>{{ veiculo.placa }}</strong> |
+            Cor: {{ veiculo.cor }} |
+            Proprietário: {{ veiculo.proprietario }}
+        </p>
+
+        <h5 class="mt-4">Histórico de Manutenções</h5>
+        {% if manutencoes %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Tipo de Serviço</th>
+                    <th>Descrição</th>
+                    <th>Data</th>
+                    <th>Quilometragem</th>
+                    <th>Custo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in manutencoes %}
+                <tr>
+                    <td>{{ m.get_tipo_display }}</td>
+                    <td>{{ m.descricao|default:"—" }}</td>
+                    <td>{{ m.data }}</td>
+                    <td>{{ m.quilometragem|default:"—" }} km</td>
+                    <td>R$ {{ m.custo|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Nenhuma manutenção registrada para este veículo ainda.</p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

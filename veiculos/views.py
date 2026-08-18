@@ -13,11 +13,6 @@ def veiculo_list(request):
     return render(request, 'veiculo_list.html', {'veiculos': veiculos})
 
 
-def veiculo_list_publico(request):
-    veiculos = Veiculo.objects.all()
-    return render(request, 'veiculo_list_publico.html', {'veiculos': veiculos})
-
-
 @login_required
 def veiculo_create(request):
     if request.method == 'POST':
@@ -50,3 +45,29 @@ def veiculo_delete(request, pk):
         veiculo.delete()
         return redirect('veiculo_list')
     return render(request, 'veiculo_confirm_delete.html', {'veiculo': veiculo})
+
+
+
+def veiculo_consulta(request):
+    veiculo = None
+    manutencoes = None
+    erro = None
+
+    if request.method == 'POST':
+        modelo = request.POST.get('modelo', '').strip()
+        placa = request.POST.get('placa', '').strip().upper()
+
+        try:
+            veiculo = Veiculo.objects.get(
+                modelo__iexact=modelo,
+                placa__iexact=placa
+            )
+            manutencoes = veiculo.manutencoes.all()
+        except Veiculo.DoesNotExist:
+            erro = 'Nenhum veículo encontrado com esse modelo e placa. Verifique os dados.'
+
+    return render(request, 'veiculo_consulta.html', {
+        'veiculo': veiculo,
+        'manutencoes': manutencoes,
+        'erro': erro,
+    })
